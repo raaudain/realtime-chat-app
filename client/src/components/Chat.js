@@ -5,6 +5,8 @@ import InfoBar from "./InfoBar";
 import Input from "./Input"
 import Messages from './Messages';
 
+let socket;
+
 const Chat = ({location}) => {
     const [name, setName] = useState("");
     const [room, setRoom] = useState("");
@@ -13,8 +15,6 @@ const Chat = ({location}) => {
     const [messages, setMessages] = useState([]); // array for storage messages
 
     const ENDPOINT = "localhost:5000";
-
-    let socket;
 
     useEffect(() => {
         const {name, room} = queryString.parse(location.search);
