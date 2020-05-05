@@ -25,7 +25,7 @@ io.on("connect", socket => {
         // Welcome message to user
         socket.emit("message", {user: "chat master", text: `Welcome to the ${user.room} room, ${user.name}.`});
 
-        // Annouces the user has joined the room
+        // Announces the user has joined the room
         socket.broadcast(user.room).emit("message", {user: "chat master", test: `${user.name} has joined the room.`})
         
         socket.join(user.room);
