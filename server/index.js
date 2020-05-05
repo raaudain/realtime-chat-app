@@ -33,6 +33,15 @@ io.on("connect", socket => {
         callback();
     })
 
+    socket.on("sendMessage", (message, callback) => {
+        const user = getUser(socket.id);
+
+        io.to(user.room).emit("message", {user: user.name, test: message})
+
+        // Callback so we can doing something after the message is sent
+        callback();
+    })
+
     socket.on("disconnect", () => {
         console.log(`User has left`)
     })
