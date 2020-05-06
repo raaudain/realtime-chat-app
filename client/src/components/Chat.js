@@ -1,66 +1,80 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from "react";
 import queryString from "query-string";
 import io from "socket.io-client";
 import InfoBar from "./InfoBar";
-import Input from "./Input"
-import Messages from './Messages';
+import Input from "./Input";
+import Messages from "./Messages";
 
 let socket;
 
-const Chat = ({location}) => {
-    const [name, setName] = useState("");
-    const [room, setRoom] = useState("");
+const Chat = ({ location }) => {
+  const [name, setName] = useState("");
+  const [room, setRoom] = useState("");
 
-    const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState([]); // array for storage messages
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]); // array for storage messages
 
-    const ENDPOINT = "localhost:5000";
+  const [users, setUsers] = useState('');
 
-    useEffect(() => {
-        const {name, room} = queryString.parse(location.search);
+  const ENDPOINT = "localhost:5000";
 
-        socket = io(ENDPOINT);
+  useEffect(() => {
+    const { name, room } = queryString.parse(location.search);
 
-        setName(name);
-        setRoom(room);
+    socket = io(ENDPOINT);
 
-        // Connect
-        socket.emit("join", {name, room}, () => {
-            
-        });
+    setName(name);
+    setRoom(room);
 
-        // Disconnect
-        return () => {
-            socket.emit("disconnect");
-
-            socket.off();
+    // Connect
+    socket.emit("join", { name, room }, error => {
+        if(error){
+            alert(error)
         }
-    }, [ENDPOINT, location.search]);
+    });
 
-    // Listening for message
-    useEffect(() => {
-        socket.on("message", message => {
-            setMessages([...messages, message])
-        });
-    }, [messages]);
+    // Disconnect
+    // return () => {
+    //   socket.emit("disconnect");
 
-    const sendMessage = event => {
-        event.preventDefault();
+    //   socket.off();
+    // };
+  }, [ENDPOINT, location.search]);
 
-        if(message){
-            socket.emit("sendMessage", message, () => setMessage(""))
-        }
+  // Listening for message
+  useEffect(() => {
+    socket.on("message", (message) => {
+      setMessages([...messages, message]);
+    });
+
+    socket.on("roomData", ({users}) => {
+        setUsers(users);
+    })
+  }, [messages]);
+
+  // Sends messages
+  const sendMessage = event => {
+    event.preventDefault();
+
+    if (message) {
+      socket.emit("sendMessage", message, () => setMessage(""));
     }
+  };
 
-    return (
-        <div className="outerContainer">
-            <h1>Chat</h1>
-            <InfoBar room={room} />
-            <Messages messages={messages} />
-            <Input message={message} setMessage={setMessage} sendMessage={sendMessage} />
-
-        </div>
-    );
-}
+  return (
+    <div className="outerContainer">
+     <div className="container">
+          <h1>Chat</h1>
+          <InfoBar room={room} />
+          <Messages messages={messages} name={name} />
+          <Input
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+          />
+     </div>
+    </div>
+  );
+};
 
 export default Chat;

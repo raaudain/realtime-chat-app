@@ -16,6 +16,7 @@ const router = require("./router");
 app.use(cors());
 app.use(router);
 
+// Run when client connects
 io.on("connect", (socket) => {
   //console.log("We have a connection");
 
@@ -26,21 +27,21 @@ io.on("connect", (socket) => {
       return callback(error);
     }
 
+    socket.join(user.room)
+
     // Welcome message to user
     socket.emit("message", {
-      user: "chatmin",
+      user: "admin",
       text: `Welcome to the ${user.room} room, ${user.name}.`,
     });
 
-    // Announces the user has joined the room
+    // Announces user has joined the room
     socket
       .broadcast.to(user.room)
       .emit("message", {
-        user: "chatmin",
+        user: "admin",
         text: `${user.name} has joined the room.`,
       });
-
-    socket.join(user.room);
 
     io.to(user.room).emit("roomData", {
       room: user.room,
@@ -53,21 +54,24 @@ io.on("connect", (socket) => {
   socket.on("sendMessage", (message, callback) => {
     const user = getUser(socket.id);
 
-    io.to(user.room).emit("message", { user: user.name, test: message });
-    io.to(user.room).emit("roomData", { room: user.room, text: message });
+    io.to(user.room).emit("message", { user: user.name, text: message });
+    //io.to(user.room).emit("roomData", { room: user.room, text: message });
 
     // Callback so we can doing something after the message is sent
     callback();
   });
 
+  // Runs when client disconnects
   socket.on("disconnect", () => {
     const user = removeUser(socket.id);
 
     if (user) {
       io.to(user.room).emit("message", {
-        user: "chatmin",
+        user: "admin",
         text: `${user.name} has left.`,
       });
+
+      io.to(user.room).emit("roomData", {room: user.room, users: getUsersInRoom(user.room)})
     }
   });
 });

@@ -1,0 +1,31 @@
+.joinOuterContainer{
+    margin-top: 15%;
+    margin-left: 25%;
+    width: 500px;
+    height: 400px;
+}
+
+.joinInnerContainer{
+    border: 2px solid #1a2e3b;
+    background-color: #f1f8ff;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.heading{
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.joinInput{
+    margin-bottom: 20px;
+    width: 80%;
+    padding: 10px;
+    border-radius: 10px;
+
+}
+
+.button{
+    font-size: 2rem;
+    padding: 5px;
+}
